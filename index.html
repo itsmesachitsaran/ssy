@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SSY - Smart Stock Yield</title>
+  <style>
+    body {
+      background: #020617;
+      color: white;
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #0f172a;
+      padding: 25px;
+      border-radius: 14px;
+      width: 360px;
+      box-shadow: 0 0 40px rgba(34,211,238,.2);
+    }
+    textarea, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background: #22d3ee;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    pre {
+      background: #020617;
+      padding: 12px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      margin-top: 10px;
+    }
+    .memory {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h1>SSY</h1>
+  <p>Smart Stock Yield</p>
+
+  <textarea id="q" placeholder="Ask a stock question..."></textarea>
+  <button onclick="answer()">Ask</button>
+
+  <pre id="a"></pre>
+  <pre id="memory" class="memory"></pre>
+
+  <small>Educational only. Not investment advice.</small>
+</div>
+
+<script>
+let memory = JSON.parse(localStorage.getItem("ssy_memory")) || [];
+
+function saveMemory(q) {
+  memory.unshift(q);
+  if (memory.length > 5) memory.pop();
+  localStorage.setItem("ssy_memory", JSON.stringify(memory));
+  showMemory();
+}
+
+function showMemory() {
+  document.getElementById("memory").innerText =
+    "Recent:\n" + memory.map((m,i)=>`${i+1}. ${m}`).join("\n");
+}
+
+function answer() {
+  const q = document.getElementById("q").value.toLowerCase();
+  const a = document.getElementById("a");
+
+  if (!q) return;
+  saveMemory(q);
+
+  let res = [];
+  let conf = 30;
+
+  if (q.includes("rsi")) { res.push("RSI measures momentum."); conf+=20; }
+  if (q.includes("bullish")) { res.push("Bullish = upward trend."); conf+=15; }
+  if (q.includes("bearish")) { res.push("Bearish = downward trend."); conf+=15; }
+  if (q.includes("reliance")) { res.push("RELIANCE is a large-cap NSE stock."); conf+=15; }
+  if (q.includes("tcs")) { res.push("TCS is an IT sector stock."); conf+=15; }
+
+  if (res.length === 0) res.push("Ask about RSI, trends, or NSE stocks.");
+
+  a.innerText = res.join("\n") + "\n\nConfidence: " + Math.min(conf,95) + "%";
+}
+
+showMemory();
+</script>
+</body>
+</html>
